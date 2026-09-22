@@ -1,0 +1,44 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { author, categoryLabels } from "../config/site";
+
+interface Props {
+  posts: CollectionEntry<"posts">[];
+}
+
+const { posts } = Astro.props;
+
+const fmtDate = (d?: Date) =>
+  d
+    ? new Intl.DateTimeFormat("zh-CN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(d)
+    : "持续更新";
+---
+
+{
+  posts.map((post) => {
+    const badge = post.data.badge || categoryLabels[post.data.category] || "笔记";
+    const href = `/posts/${post.id}/`;
+    return (
+      <article
+        class="xx-post searchable"
+        data-search={`${badge} ${post.data.title} ${post.data.description || ""} ${post.data.tags.join(" ")}`}
+      >
+        <a class="xx-post-hit" href={href} aria-label={`打开 ${post.data.title}`} />
+        <div class="xx-post-title">
+          <span class={badge === "置顶" ? "pinned" : ""}>{badge}</span>
+          <h2>{post.data.title}</h2>
+        </div>
+        <p>{post.data.description}</p>
+        <footer>
+          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" /><path d="M5 21c.9-4.2 3.2-6 7-6s6.1 1.8 7 6" /></svg>{author}</span>
+          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v6l4 2" /></svg>{fmtDate(post.data.date)}</span>
+          <span><svg viewBox="0 0 24 24"><path d="M4 5h16v12H9l-5 4z" /></svg>0 条评论</span>
+        </footer>
+      </article>
+    );
+  })
+}

@@ -1,0 +1,53 @@
+---
+import { getCollection, render } from "astro:content";
+import "../../styles/site.css";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("posts", ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const fmtDate = (d?: Date) =>
+  d
+    ? new Intl.DateTimeFormat("zh-CN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(d)
+    : "";
+---
+
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={post.data.description} />
+    <title>{post.data.title} · Fuhai Blog</title>
+  </head>
+  <body>
+    <main class="article-page">
+      <a href="/">← 返回 Blog</a>
+      <article>
+        <small>FUHAI'S BLOG</small>
+        <h1>{post.data.title}</h1>
+        {post.data.description && <p class="article-desc">{post.data.description}</p>}
+        {post.data.tags.length > 0 && (
+          <div class="article-tags">
+            {post.data.tags.map((tag) => <span>{tag}</span>)}
+          </div>
+        )}
+        <hr />
+        <div class="article-body">
+          <Content />
+        </div>
+        {post.data.date && <p class="article-foot muted">发布于 {fmtDate(post.data.date)} · Fuhai</p>}
+      </article>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+---
+import { getCollection } from "astro:content";
+import SiteFrame from "../layouts/SiteFrame.astro";
+import PostStream from "../components/PostStream.astro";
+
+const posts = (await getCollection("posts", ({ data }) => !data.draft && data.category === "life"))
+  .sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0));
+---
+
+<SiteFrame title="生活随记" activePath="/life/" center={false}>
+  <section class="xx-section-head">
+    <p class="maintenance-eyebrow">LIFE NOTES</p>
+    <h1>生活随记</h1>
+    <p>摄影、旅行和日常记录会整理在这里。</p>
+  </section>
+
+  {posts.length === 0 ? (
+    <p class="xx-empty">生活随记内容正在整理，敬请期待。</p>
+  ) : (
+    <div class="xx-post-stream">
+      <PostStream posts={posts} />
+    </div>
+  )}
+</SiteFrame>

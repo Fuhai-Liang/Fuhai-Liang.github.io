@@ -1,0 +1,24 @@
+---
+import SiteFrame from "../layouts/SiteFrame.astro";
+import { sections, type SectionKey } from "../config/site";
+
+interface Props {
+  section: SectionKey;
+}
+
+const { section } = Astro.props;
+const page = sections[section];
+---
+
+<SiteFrame title={page.title} activePath={page.href}>
+  <section class="maintenance-page">
+    <p class="maintenance-eyebrow">{page.eyebrow}</p>
+    <div class="maintenance-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18v3h3l6.7-6.7a4 4 0 0 0 5-5l-2.4 2.4-3-3z" /></svg>
+    </div>
+    <h1>{page.title}</h1>
+    <p>{page.description}</p>
+    <strong>正在维护中，敬请期待</strong>
+    <a href="/">返回首页</a>
+  </section>
+</SiteFrame>

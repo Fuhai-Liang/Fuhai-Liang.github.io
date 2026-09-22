@@ -1,0 +1,69 @@
+---
+import { getCollection } from "astro:content";
+import SiteFrame from "../layouts/SiteFrame.astro";
+import PostStream from "../components/PostStream.astro";
+
+const allPosts = await getCollection("posts", ({ data }) => !data.draft);
+const sorted = allPosts.sort((a, b) => {
+  const pa = a.data.pinned ? 1 : 0;
+  const pb = b.data.pinned ? 1 : 0;
+  if (pa !== pb) return pb - pa;
+  return (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0);
+});
+
+const projectCount = allPosts.filter((p) => p.data.category === "project").length;
+const stats: [string, string][] = [
+  ["文章数目", String(allPosts.length)],
+  ["评论数目", "0"],
+  ["项目数目", String(projectCount)],
+];
+---
+
+<SiteFrame title="Fuhai Blog" activePath="/" showRightbar mainId="blog" stats={stats}>
+  <section class="xx-notice" id="notice">
+    <span class="xx-line-icon">
+      <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" /></svg>
+    </span>
+    <p>
+      <b>开学了，随缘更</b>
+      <span>本站会继续整理 AI Agent、RAG、Computer Vision 和项目开发笔记。</span>
+    </p>
+    <button class="xx-notice-close" type="button" aria-label="关闭提示">
+      <svg viewBox="0 0 24 24"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+    </button>
+  </section>
+
+  <section class="xx-hero">
+    <h1>Fuhai Blog</h1>
+    <p>远赴人间惊鸿宴，一睹人间盛世颜</p>
+  </section>
+
+  <section class="xx-post-stream" aria-label="文章列表">
+    <PostStream posts={sorted} />
+  </section>
+
+  <script>
+    const notice = document.querySelector("#notice");
+    document.querySelector(".xx-notice-close")?.addEventListener("click", () => {
+      notice?.classList.add("is-hidden");
+    });
+
+    const input = document.querySelector<HTMLInputElement>("#site-search");
+    const posts = document.querySelectorAll<HTMLElement>(".searchable");
+    const runSearch = () => {
+      if (!input) return;
+      const query = input.value.trim().toLowerCase();
+      posts.forEach((post) => {
+        const text = (post.dataset.search || post.textContent || "").toLowerCase();
+        post.classList.toggle("is-filtered", Boolean(query) && !text.includes(query));
+      });
+    };
+
+    const initialQuery = new URLSearchParams(location.search).get("q");
+    if (input && initialQuery) {
+      input.value = initialQuery;
+      runSearch();
+    }
+    input?.addEventListener("input", runSearch);
+  </script>
+</SiteFrame>

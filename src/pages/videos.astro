@@ -1,0 +1,24 @@
+---
+import { getCollection } from "astro:content";
+import SiteFrame from "../layouts/SiteFrame.astro";
+import PostStream from "../components/PostStream.astro";
+
+const posts = (await getCollection("posts", ({ data }) => !data.draft && data.category === "video"))
+  .sort((a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0));
+---
+
+<SiteFrame title="视频" activePath="/videos/" center={false}>
+  <section class="xx-section-head">
+    <p class="maintenance-eyebrow">VIDEOS</p>
+    <h1>视频</h1>
+    <p>演示视频和影像内容会整理在这里。</p>
+  </section>
+
+  {posts.length === 0 ? (
+    <p class="xx-empty">视频内容正在整理，敬请期待。</p>
+  ) : (
+    <div class="xx-post-stream">
+      <PostStream posts={posts} />
+    </div>
+  )}
+</SiteFrame>
